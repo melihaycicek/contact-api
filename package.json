@@ -1,12 +1,22 @@
 {
-  "name": "steadyhand-api",
-  "version": "1.0.0",
-  "description": "Multi-channel verification API",
+  "name": "contact-api",
+  "version": "2.0.0",
+  "description": "Multi-channel contact form API with admin panel and email notifications",
   "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "migrate": "node scripts/migrate.js",
+    "seed-admin": "node scripts/seed-admin.js",
+    "notify": "node workers/notifier.js"
+  },
   "dependencies": {
-    "express": "^4.18.2",
-    "mysql2": "^3.6.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "cors": "^2.8.5"
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.4",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.6.0",
+    "nodemailer": "^6.9.7"
   }
 }
