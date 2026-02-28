@@ -3,6 +3,8 @@ node_modules/
 .DS_Store
 *.log
 npm-debug.log*
+fetch-schema.js
+ssh/
 logs/
 public.zip
 stderr.log
