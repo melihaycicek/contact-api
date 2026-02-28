@@ -5,6 +5,9 @@ require('dotenv').config();
 
 const app = express();
 
+// cPanel / LiteSpeed reverse proxy arkasında çalıştığı için gerekli
+app.set('trust proxy', 1);
+
 // --- CORS Ayarları ---
 // İzin verilen originler (.env'den veya varsayılan)
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
