@@ -31,7 +31,7 @@ async function run() {
     // 1. notified=0 olan kayıtları bul (en eski önce)
     const [submissions] = await pool.execute(
       `SELECT s.id, s.channel_id, s.form_data, s.ip_address, s.created_at,
-              c.name as channel_name, c.notification_email
+              c.channel_name, c.notification_email
        FROM submissions s
        LEFT JOIN channels c ON c.id = s.channel_id
        WHERE s.notified = 0

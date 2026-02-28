@@ -58,7 +58,7 @@ router.get('/', async (req, res) => {
 
     // Kayıtlar
     const [rows] = await pool.execute(
-      `SELECT s.id, s.channel_id, c.name as channel_name, s.form_data, s.ip_address,
+      `SELECT s.id, s.channel_id, c.channel_name, s.form_data, s.ip_address,
               s.is_verified, s.notified, s.notified_at, s.created_at
        FROM submissions s
        LEFT JOIN channels c ON c.id = s.channel_id
@@ -77,6 +77,7 @@ router.get('/', async (req, res) => {
 
       return {
         ...row,
+        channel_name: row.channel_name,
         form_data: parsed,
         name: parsed.name || parsed.fullName || parsed.ad || '-',
         email: parsed.email || parsed.mail || parsed.eposta || '-',
@@ -117,7 +118,7 @@ router.get('/export', async (req, res) => {
     if (keyword) { where.push('s.form_data LIKE ?'); params.push(`%${keyword}%`); }
 
     const [rows] = await pool.execute(
-      `SELECT s.id, c.name as channel_name, s.form_data, s.ip_address,
+      `SELECT s.id, c.channel_name, s.form_data, s.ip_address,
               s.notified, s.notified_at, s.created_at
        FROM submissions s
        LEFT JOIN channels c ON c.id = s.channel_id
@@ -158,7 +159,7 @@ router.get('/export', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const [rows] = await pool.execute(
-      `SELECT s.*, c.name as channel_name, c.domain as channel_domain
+      `SELECT s.*, c.channel_name
        FROM submissions s
        LEFT JOIN channels c ON c.id = s.channel_id
        WHERE s.id = ?`,
@@ -233,7 +234,7 @@ router.get('/stats/overview', async (req, res) => {
     const [today] = await pool.execute(
       'SELECT COUNT(*) as count FROM submissions WHERE DATE(created_at) = CURDATE()'
     );
-    const [channelCount] = await pool.execute('SELECT COUNT(*) as count FROM channels WHERE status = ?', ['active']);
+    const [channelCount] = await pool.execute('SELECT COUNT(*) as count FROM channels');
 
     return res.json({
       totalSubmissions: total[0].count,

@@ -11,7 +11,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const [rows] = await pool.execute(
-      'SELECT id, name, domain, api_key, status, notification_email, created_at FROM channels ORDER BY created_at DESC'
+      'SELECT id, channel_name, api_key, notification_email, created_at FROM channels ORDER BY created_at DESC'
     );
     return res.json(rows);
   } catch (error) {
@@ -25,9 +25,9 @@ router.get('/', async (req, res) => {
  * Yeni channel oluştur
  */
 router.post('/', async (req, res) => {
-  const { name, domain, notification_email } = req.body;
+  const { channel_name, notification_email } = req.body;
 
-  if (!name) {
+  if (!channel_name) {
     return res.status(400).json({ error: 'Channel adı gereklidir.' });
   }
 
@@ -35,16 +35,14 @@ router.post('/', async (req, res) => {
 
   try {
     const [result] = await pool.execute(
-      'INSERT INTO channels (name, domain, api_key, status, notification_email) VALUES (?, ?, ?, ?, ?)',
-      [name, domain || null, apiKey, 'active', notification_email || null]
+      'INSERT INTO channels (channel_name, api_key, notification_email) VALUES (?, ?, ?)',
+      [channel_name, apiKey, notification_email || null]
     );
 
     return res.status(201).json({
       id: result.insertId,
-      name,
-      domain,
+      channel_name,
       api_key: apiKey,
-      status: 'active',
       notification_email
     });
   } catch (error) {
@@ -59,15 +57,13 @@ router.post('/', async (req, res) => {
  */
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
-  const { name, domain, status, notification_email } = req.body;
+  const { channel_name, notification_email } = req.body;
 
   try {
     const fields = [];
     const values = [];
 
-    if (name !== undefined) { fields.push('name = ?'); values.push(name); }
-    if (domain !== undefined) { fields.push('domain = ?'); values.push(domain); }
-    if (status !== undefined) { fields.push('status = ?'); values.push(status); }
+    if (channel_name !== undefined) { fields.push('channel_name = ?'); values.push(channel_name); }
     if (notification_email !== undefined) { fields.push('notification_email = ?'); values.push(notification_email); }
 
     if (fields.length === 0) {

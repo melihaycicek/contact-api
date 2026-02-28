@@ -59,6 +59,69 @@
 
 ---
 
+## Bug Fix: HTTP 500 Analizi (2026-02-28)
+
+### Sorun
+Form gönderildiğinde `POST /api/submit` → **HTTP 500** dönüyor.
+
+### Kök Neden
+Kod, canlı veritabanı şemasıyla **uyumsuzdu**. SSH tüneli üzerinden canlı DB scheması çekildi ve şu farklar bulundu:
+
+| Beklenen (Kod) | Canlı DB (Gerçek) | Durum |
+|---|---|---|
+| `channels.name` | `channels.channel_name` | **Kolon adı farklı** |
+| `channels.status` | *yok* | **Kolon mevcut değil** |
+| `channels.domain` | *yok* | **Kolon mevcut değil** |
+
+**500'ü tetikleyen spesifik SQL:**
+```sql
+-- routes/api.js satır 19:
+SELECT id, notification_email FROM channels WHERE api_key = ? AND status = ?
+-- "status" kolonu DB'de yok → MySQL hata → catch bloğu → 500
+```
+
+### Canlı DB Şeması (Referans)
+
+**channels:**
+| Kolon | Tip |
+|---|---|
+| id | int(11) PK auto_increment |
+| channel_name | varchar(50) |
+| api_key | varchar(64) UNIQUE |
+| created_at | timestamp |
+| notification_email | varchar(255) NULL |
+
+**submissions:**
+| Kolon | Tip |
+|---|---|
+| id | int(11) PK auto_increment |
+| channel_id | int(11) FK |
+| form_data | longtext |
+| ip_address | varchar(45) |
+| is_verified | tinyint(1) default 0 |
+| created_at | timestamp |
+| notified | tinyint(1) default 0 |
+| notified_at | datetime NULL |
+
+**admins:**
+| Kolon | Tip |
+|---|---|
+| id | int(11) PK auto_increment |
+| username | varchar(50) UNIQUE |
+| password_hash | varchar(255) |
+| created_at | datetime |
+
+### Yapılan Düzeltmeler
+1. **routes/api.js** – `status = 'active'` koşulu kaldırıldı
+2. **routes/adminChannels.js** – `name` → `channel_name`, `domain`/`status` referansları kaldırıldı
+3. **routes/adminSubmissions.js** – `c.name as channel_name` → `c.channel_name`, `c.domain` kaldırıldı
+4. **workers/notifier.js** – `c.name as channel_name` → `c.channel_name`
+5. **public/admin/js/pages/channels.js** – Frontend: `ch.name` → `ch.channel_name`, domain/status sütunları kaldırıldı
+6. **public/admin/js/pages/submissions.js** – Filtre dropdown'da `ch.name` → `ch.channel_name`
+7. **migrations/001_notification_fields.sql** – Gerçek DB'yi yansıtacak şekilde güncellendi
+
+---
+
 ## İlerleme Kaydı
 
 | Tarih | Yapılan |
@@ -73,3 +136,4 @@
 | 2026-02-21 | Admin panel SPA (login, dashboard, channels, submissions ekranları) |
 | 2026-02-21 | package.json güncellendi, .env.example oluşturuldu |
 | 2026-02-21 | README komple yenilendi |
+| 2026-02-28 | **BUG FIX:** HTTP 500 – DB şema uyumsuzluğu giderildi (name→channel_name, status/domain kaldırıldı) |

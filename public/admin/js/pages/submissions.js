@@ -71,7 +71,7 @@ const SubmissionsPage = {
       this.channels.forEach(ch => {
         const opt = document.createElement('option');
         opt.value = ch.id;
-        opt.textContent = ch.name || `Channel #${ch.id}`;
+        opt.textContent = ch.channel_name || `Channel #${ch.id}`;
         select.appendChild(opt);
       });
     } catch {}

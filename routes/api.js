@@ -14,14 +14,14 @@ router.post('/submit', submitLimiter, honeypotCheck, async (req, res) => {
   const { api_key, data, verification_token } = req.body;
 
   try {
-    // 1. API Key doğrulama + channel aktiflik kontrolü
+    // 1. API Key doğrulama
     const [channels] = await pool.execute(
-      'SELECT id, notification_email FROM channels WHERE api_key = ? AND status = ?',
-      [api_key, 'active']
+      'SELECT id, notification_email FROM channels WHERE api_key = ?',
+      [api_key]
     );
 
     if (channels.length === 0) {
-      return res.status(403).json({ error: 'Geçersiz API Anahtarı veya devre dışı kanal.' });
+      return res.status(403).json({ error: 'Geçersiz API Anahtarı.' });
     }
 
     // 2. Verification token kontrolü
