@@ -28,4 +28,46 @@ const loginLimiter = rateLimit({
   }
 });
 
-module.exports = { submitLimiter, loginLimiter };
+/**
+ * Yorum gönderme için rate limiter
+ * Her IP adresi saatte en fazla 5 yorum gönderebilir
+ */
+const commentLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 saat
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: 'Çok fazla yorum gönderildi. Bir saat sonra tekrar deneyin.'
+  }
+});
+
+/**
+ * Clap / reaction için rate limiter
+ * Her IP adresi saatte en fazla 200 etkileşim yapabilir (birden fazla makale dahil)
+ */
+const reactionLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 saat
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: 'Çok fazla etkileşim. Bir saat sonra tekrar deneyin.'
+  }
+});
+
+/**
+ * Bülten aboneliği için rate limiter
+ * Her IP adresi saatte en fazla 5 abonelik isteği gönderebilir
+ */
+const subscribeLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 saat
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: 'Çok fazla istek. Bir saat sonra tekrar deneyin.'
+  }
+});
+
+module.exports = { submitLimiter, loginLimiter, commentLimiter, reactionLimiter, subscribeLimiter };

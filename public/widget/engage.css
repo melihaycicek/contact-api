@@ -1,0 +1,342 @@
+/* =============================================
+   engage.css — Blog Etkileşim Widget Stilleri
+   CSS custom properties ile tamamen özelleştirilebilir
+   ============================================= */
+
+:root {
+  --eg-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --eg-bg: #ffffff;
+  --eg-border: #e5e7eb;
+  --eg-radius: 12px;
+  --eg-text: #111827;
+  --eg-muted: #6b7280;
+  --eg-accent: #111827;
+  --eg-accent-hover: #374151;
+  --eg-success: #16a34a;
+  --eg-error: #dc2626;
+  --eg-shadow: 0 1px 3px rgba(0,0,0,.08);
+  --eg-gap: 16px;
+}
+
+/* ---- Kök kapsayıcı ---- */
+.eg-root {
+  font-family: var(--eg-font);
+  color: var(--eg-text);
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* ---- Bölüm başlığı ---- */
+.eg-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--eg-border);
+}
+
+/* ========================
+   Reactions / Clap
+   ======================== */
+.eg-reactions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.eg-clap-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--eg-bg);
+  border: 1px solid var(--eg-border);
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform .12s, background .12s;
+  box-shadow: var(--eg-shadow);
+  user-select: none;
+}
+
+.eg-clap-btn:hover {
+  background: #f9fafb;
+}
+
+.eg-clap-btn.eg-clap-active {
+  transform: scale(1.15);
+  background: #f3f4f6;
+}
+
+.eg-clap-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.eg-clap-total {
+  font-weight: 700;
+  font-size: .95rem;
+}
+
+.eg-clap-hint {
+  font-size: .8rem;
+  color: var(--eg-muted);
+}
+
+/* ========================
+   Comments
+   ======================== */
+.eg-comments {
+  margin-bottom: 24px;
+}
+
+.eg-comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.eg-empty {
+  color: var(--eg-muted);
+  font-size: .9rem;
+  margin: 0;
+}
+
+.eg-comment-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.eg-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--eg-border);
+  object-fit: cover;
+}
+
+.eg-comment-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.eg-author {
+  font-weight: 600;
+  font-size: .9rem;
+  margin-right: 8px;
+}
+
+.eg-date {
+  font-size: .78rem;
+  color: var(--eg-muted);
+}
+
+.eg-content {
+  margin: 4px 0 0;
+  font-size: .9rem;
+  line-height: 1.55;
+  word-break: break-word;
+}
+
+/* ========================
+   Comment Form
+   ======================== */
+.eg-comment-form {
+  border-top: 1px solid var(--eg-border);
+  padding-top: 20px;
+}
+
+.eg-avatar-picker {
+  margin-bottom: 14px;
+}
+
+.eg-av-label {
+  font-size: .82rem;
+  color: var(--eg-muted);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.eg-av-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.eg-av-option {
+  cursor: pointer;
+  position: relative;
+}
+
+.eg-av-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.eg-av-option img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: border-color .15s, transform .15s;
+  background: var(--eg-border);
+}
+
+.eg-av-option input[type="radio"]:checked + img {
+  border-color: var(--eg-accent);
+  transform: scale(1.1);
+}
+
+.eg-av-option:hover img {
+  border-color: var(--eg-muted);
+}
+
+.eg-form-row {
+  margin-bottom: 10px;
+}
+
+.eg-comment-form input[type="text"],
+.eg-comment-form input[type="email"],
+.eg-comment-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 12px;
+  border: 1px solid var(--eg-border);
+  border-radius: 8px;
+  font-size: .9rem;
+  font-family: var(--eg-font);
+  color: var(--eg-text);
+  background: var(--eg-bg);
+  transition: border-color .15s;
+  resize: vertical;
+}
+
+.eg-comment-form input:focus,
+.eg-comment-form textarea:focus {
+  outline: none;
+  border-color: var(--eg-accent);
+}
+
+.eg-form-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.eg-char-count {
+  font-size: .78rem;
+  color: var(--eg-muted);
+}
+
+.eg-submit-btn {
+  background: var(--eg-accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 20px;
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.eg-submit-btn:hover:not(:disabled) {
+  background: var(--eg-accent-hover);
+}
+
+.eg-submit-btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.eg-form-msg {
+  margin-top: 8px;
+  font-size: .85rem;
+  min-height: 1.2em;
+}
+
+.eg-msg-success { color: var(--eg-success); }
+.eg-msg-error   { color: var(--eg-error); }
+
+/* ========================
+   Subscribe / Newsletter
+   ======================== */
+.eg-subscribe {
+  border-top: 1px solid var(--eg-border);
+  padding-top: 20px;
+  margin-top: 8px;
+}
+
+.eg-subscribe-inner {
+  background: #f9fafb;
+  border: 1px solid var(--eg-border);
+  border-radius: var(--eg-radius);
+  padding: 20px;
+}
+
+.eg-subscribe-cta {
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.eg-subscribe-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.eg-subscribe-form input[type="email"] {
+  flex: 1;
+  min-width: 200px;
+  padding: 9px 12px;
+  border: 1px solid var(--eg-border);
+  border-radius: 8px;
+  font-size: .9rem;
+  font-family: var(--eg-font);
+  background: var(--eg-bg);
+}
+
+.eg-subscribe-form input[type="email"]:focus {
+  outline: none;
+  border-color: var(--eg-accent);
+}
+
+.eg-subscribe-form button {
+  background: var(--eg-accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s;
+}
+
+.eg-subscribe-form button:hover:not(:disabled) {
+  background: var(--eg-accent-hover);
+}
+
+.eg-subscribe-msg {
+  width: 100%;
+  font-size: .82rem;
+}
+
+/* ========================
+   Responsive
+   ======================== */
+@media (max-width: 480px) {
+  .eg-clap-btn { padding: 8px 14px; }
+  .eg-comment-item { gap: 8px; }
+  .eg-avatar { width: 32px; height: 32px; }
+  .eg-form-footer { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .eg-submit-btn { width: 100%; }
+}

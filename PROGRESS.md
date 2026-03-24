@@ -1,5 +1,7 @@
 # Contact API – Geliştirme İlerleme Takibi
 
+> Son güncelleme: 2026-03-23
+
 ## Mevcut Durum Analizi
 
 ### Var Olan
@@ -56,6 +58,90 @@
 - [x] .env.example oluştur
 - [x] README güncellenecek
 - [x] SQL migration dosyaları
+
+---
+
+## E) Blog Etkileşim Sistemi (2026-03-23)
+
+Portfolio blog'u için yorum, beğeni (clap) ve bülten aboneliği sistemi.
+
+### Backend Kod (Tamamlandı ✅)
+
+#### Public API Route'ları
+- [x] `GET  /api/comments/:slug` — Onaylı yorumları listele (api_key query param)
+- [x] `POST /api/comments` — Yeni yorum gönder (pending, avatar_id 1-8)
+- [x] `GET  /api/reactions/:slug` — Toplam + kullanıcı reaction sayıları
+- [x] `POST /api/reactions` — Clap / like / heart ekle (fingerprint tabanlı limit)
+- [x] `POST /api/subscribe` — Bülten aboneliği başlat (double opt-in)
+- [x] `GET  /api/subscribe/verify?token=...` — E-posta doğrulama
+- [x] `GET  /api/unsubscribe?token=...` — Abonelik iptali
+
+#### Admin API Route'ları
+- [x] `GET  /admin/api/comments` — Filtreli liste (status, slug, channel_id)
+- [x] `GET  /admin/api/comments/:id` — Yorum detayı
+- [x] `PUT  /admin/api/comments/:id/approve` — Yorumu onayla
+- [x] `PUT  /admin/api/comments/:id/reject` — Yorumu reddet
+- [x] `DELETE /admin/api/comments/:id` — Yorumu sil (GDPR)
+- [x] `GET  /admin/api/reactions` — Makale bazlı reaction özeti
+- [x] `GET  /admin/api/subscribers` — Abone listesi (filtreli)
+- [x] `GET  /admin/api/subscribers/export` — Aktif aboneleri CSV indir
+
+#### SQL Migrasyonlar
+- [x] `004_comments_table.sql` — comments tablosu (avatar_id, status, index'ler)
+- [x] `005_reactions_table.sql` — reactions tablosu (fingerprint, uq constraint)
+- [x] `006_subscribers_table.sql` — subscribers tablosu (double opt-in token)
+
+#### Widget
+- [x] `public/widget/engage.js` — Vanilla JS embed widget (reactions + comments)
+- [x] `public/widget/engage.css` — Widget stilleri
+
+### Deploy / Yapılandırma — MELİH'İN YAPACAKLARI ⏳
+
+#### 1. cPanel — SQL Migrasyonlar
+- [ ] phpMyAdmin'i aç → `audfllcd_contact_form` veritabanını seç
+- [ ] `migrations/004_comments_table.sql` içeriğini çalıştır → `comments` tablosu oluşur
+- [ ] `migrations/005_reactions_table.sql` içeriğini çalıştır → `reactions` tablosu oluşur
+- [ ] `migrations/006_subscribers_table.sql` içeriğini çalıştır → `subscribers` tablosu oluşur
+
+#### 2. cPanel — `.env` Güncellemeleri
+- [ ] `APP_URL=https://audfix.com` ekle (double opt-in doğrulama linki için **kritik**)
+- [ ] `ALLOWED_ORIGINS` satırına `https://melihaycicek.com` ekle  
+  Örnek: `ALLOWED_ORIGINS=https://melihaycicek.com,https://admin.audfix.com`
+
+#### 3. cPanel — contact-api kodunu pull et
+- [ ] SSH veya Git Manager ile `development` branch'ini pull et
+- [ ] `npm install` çalıştır (yeni bağımlılık yok, kontrol amaçlı)
+- [ ] Passenger / Node.js App Manager'dan uygulamayı restart et
+
+#### 4. Admin Panel — Channel Oluştur
+- [ ] `/admin` paneline gir → Channels → "Portfolio Blog" adıyla yeni channel ekle
+- [ ] Oluşan `api_key` değerini kopyala (örn. `ch_abc123...`)
+
+#### 5. Portfolio Projesi — `.env.local` Güncelle
+- [ ] `Portfolio-v2-main/.env.local` dosyasına şunu ekle:
+  ```
+  REACT_APP_ENGAGEMENT_API=https://audfix.com
+  REACT_APP_ENGAGEMENT_KEY=ch_abc123...   ← 4. adımdan aldığın key
+  ```
+- [ ] Projeyi build et ve Firebase'e deploy et
+
+#### 6. Widget için Avatar Dosyaları (contact-api — backend tarafı)
+- [ ] `public/widget/avatars/` klasörüne şu isimlerde 8 SVG kopyala:
+  `avatar-1.svg`, `avatar-2.svg`, ..., `avatar-8.svg`  
+  (Portfolio projesindeki `avatar-astronaut.svg` → `avatar-1.svg` şeklinde sıralamayı takip et)
+- [ ] `default.svg` dosyası ekle (avatar seçilmemişse gösterilir)
+- [ ] cPanel'e push et / dosyaları File Manager'dan yükle
+
+### Kod Eksikleri (Bekleyen ⏳)
+
+- [ ] **Admin Panel Comments Sayfası** — `public/admin/js/pages/` altında Comments moderasyon UI'ı yok.  
+  Backend endpoint'ler hazır (`/admin/api/comments/:id/approve`, `/reject`, `DELETE`).  
+  Admin SPA'ya yeni sayfa eklenecek.
+
+### Notlar
+- Yorum moderasyonu **zorunlu**: Frontend comment post eder → `status='pending'` → admin onaylar → görünür olur.
+- Reactions fingerprint: IP + User-Agent SHA-256 → KVKK uyumlu, geri dönüşü yok.
+- Subscribe email: `APP_URL` olmadan verify URL bozuk gelir → cPanel'de eklenmesi kritik.
 
 ---
 

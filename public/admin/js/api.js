@@ -2,7 +2,7 @@
  * API Client – Token yönetimi ve HTTP çağrıları
  */
 const API = {
-  baseUrl: '/admin/api',
+  baseUrl: '/contact-api/admin/api',
   token: localStorage.getItem('admin_token') || null,
 
   setToken(token) {
