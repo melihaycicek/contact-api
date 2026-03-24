@@ -142,4 +142,55 @@ router.post('/', reactionLimiter, async (req, res) => {
   }
 });
 
+/**
+ * DELETE /api/reactions
+ * Kullanıcının bir reaction'ını kaldırır (toggle off).
+ *
+ * Body: { api_key, article_slug, reaction_type }
+ */
+router.delete('/', async (req, res) => {
+  const { api_key, article_slug, reaction_type } = req.body;
+
+  if (!api_key || !article_slug) {
+    return res.status(400).json({ error: 'api_key ve article_slug zorunludur.' });
+  }
+
+  if (!VALID_TYPES.includes(reaction_type)) {
+    return res.status(400).json({ error: `reaction_type şunlardan biri olmalı: ${VALID_TYPES.join(', ')}` });
+  }
+
+  try {
+    const [channels] = await pool.execute(
+      'SELECT id FROM channels WHERE api_key = ?',
+      [api_key]
+    );
+    if (channels.length === 0) {
+      return res.status(403).json({ error: 'Geçersiz API Anahtarı.' });
+    }
+    const channelId = channels[0].id;
+    const fingerprint = makeFingerprint(req);
+
+    await pool.execute(
+      `DELETE FROM reactions
+       WHERE article_slug = ? AND channel_id = ? AND reaction_type = ? AND fingerprint = ?`,
+      [article_slug, channelId, reaction_type, fingerprint]
+    );
+
+    const [[totalRow]] = await pool.execute(
+      `SELECT COALESCE(SUM(count), 0) AS total
+       FROM reactions
+       WHERE article_slug = ? AND channel_id = ? AND reaction_type = ?`,
+      [article_slug, channelId, reaction_type]
+    );
+
+    return res.json({
+      [`total_${reaction_type}s`]: Number(totalRow.total),
+      [`your_${reaction_type}s`]: 0
+    });
+  } catch (err) {
+    console.error('DELETE /api/reactions error:', err);
+    return res.status(500).json({ error: 'Sunucu hatası.' });
+  }
+});
+
 module.exports = router;
