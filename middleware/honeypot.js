@@ -20,4 +20,17 @@ function honeypotCheck(req, res, next) {
   next();
 }
 
-module.exports = { honeypotCheck };
+/**
+ * Üst seviye honeypot — subscribe gibi data wrapper'ı olmayan body'ler için.
+ * req.body._hp dolu geldiyse bot olarak değerlendirilir.
+ */
+function topLevelHoneypotCheck(req, res, next) {
+  const hp = req.body._hp;
+  if (hp && String(hp).length > 0) {
+    return res.status(200).json({ success: 'Abonelik isteği alındı. Lütfen e-postanızı kontrol edin.' });
+  }
+  if (hp !== undefined) delete req.body._hp;
+  next();
+}
+
+module.exports = { honeypotCheck, topLevelHoneypotCheck };

@@ -3,8 +3,14 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const pool = require('../config/db');
 const { subscribeLimiter } = require('../middleware/rateLimit');
+const { topLevelHoneypotCheck } = require('../middleware/honeypot');
 
 const router = express.Router();
+
+/** HTML tag'larını ve tehlikeli karakterleri silen yardımcı */
+function stripTags(str) {
+  return String(str).replace(/<[^>]*>/g, '').trim();
+}
 
 /**
  * SMTP transporter (index.js'deki notifier ile aynı .env değerlerini kullanır)
@@ -59,8 +65,10 @@ async function sendVerifyMail(email, token, channelName) {
  *
  * Body: { api_key, email, source_slug? }
  */
-router.post('/', subscribeLimiter, async (req, res) => {
-  const { api_key, email, source_slug = null } = req.body;
+router.post('/subscribe', subscribeLimiter, topLevelHoneypotCheck, async (req, res) => {
+  const { api_key, email, source_slug: rawSlug = null } = req.body;
+  // source_slug: yalnızca URL-güvenli karakterler, max 200 karakter
+  const source_slug = rawSlug ? stripTags(rawSlug).slice(0, 200) : null;
 
   if (!api_key || !email) {
     return res.status(400).json({ error: 'api_key ve email zorunludur.' });

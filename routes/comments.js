@@ -73,11 +73,20 @@ router.post('/', commentLimiter, honeypotCheck, async (req, res) => {
     _hp  // honeypotCheck middleware zaten kontrol eder ama burada da güvenli ayrıştırma
   } = data;
 
+  // HTML tag sökme — derinlemesine savunma (React display zaten escape eder,
+  // ama DB'ye temiz veri yazmak daha güvenli)
+  function stripTags(str) {
+    return String(str).replace(/<[^>]*>/g, '').trim();
+  }
+
+  const cleanContent = stripTags(content);
+  const cleanSlug = stripTags(article_slug).slice(0, 300);
+
   // İçerik doğrulama
-  if (!content || typeof content !== 'string' || content.trim().length < 10) {
+  if (!cleanContent || cleanContent.length < 10) {
     return res.status(400).json({ error: 'Yorum en az 10 karakter olmalıdır.' });
   }
-  if (content.trim().length > 2000) {
+  if (cleanContent.length > 2000) {
     return res.status(400).json({ error: 'Yorum en fazla 2000 karakter olabilir.' });
   }
 
@@ -87,8 +96,8 @@ router.post('/', commentLimiter, honeypotCheck, async (req, res) => {
     return res.status(400).json({ error: `avatar_id ${AVATAR_MIN}-${AVATAR_MAX} arasında olmalıdır.` });
   }
 
-  // Yazar adı uzunluk kontrolü
-  const cleanName = String(author_name).trim().slice(0, 100) || 'Anonim';
+  // Yazar adı uzunluk + strip kontrolü
+  const cleanName = stripTags(author_name).slice(0, 100) || 'Anonim';
 
   try {
     const [channels] = await pool.execute(
@@ -105,11 +114,11 @@ router.post('/', commentLimiter, honeypotCheck, async (req, res) => {
       `INSERT INTO comments (article_slug, channel_id, author_name, author_email, content, avatar_id, ip_address, status)
        VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')`,
       [
-        article_slug.trim(),
+        cleanSlug,
         channelId,
         cleanName,
         author_email || null,
-        content.trim(),
+        cleanContent,
         parsedAvatarId,
         ipAddress
       ]
