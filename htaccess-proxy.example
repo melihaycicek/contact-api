@@ -1,0 +1,26 @@
+# ============================================================
+# contact-api Reverse Proxy — cPanel / LiteSpeed / Apache
+# Dosya yeri: public_html/.htaccess  (veya subdomain root'u)
+# ============================================================
+#
+# Bu dosya /contact-api/ prefix'li istekleri
+# Node.js uygulamasının çalıştığı port 3100'e yönlendirir.
+#
+# Kurulum:
+#   1. cPanel → File Manager → public_html/.htaccess'i aç
+#   2. Aşağıdaki bloğu mevcut .htaccess'e BAŞA ekle
+#   3. Kaydet
+# ============================================================
+
+RewriteEngine On
+
+# ── contact-api yönlendirmesi ────────────────────────────────
+# /contact-api/* → http://127.0.0.1:3100/contact-api/*
+RewriteCond %{REQUEST_URI} ^/contact-api/
+RewriteRule ^contact-api/(.*)$ http://127.0.0.1:3100/contact-api/$1 [P,L]
+
+# ── Proxy Header'ı (X-Internal-Token) ────────────────────────
+# Admin rotaları için güvenlik token'ı.
+# INTERNAL_TOKEN'ı contact-api .env'deki değerle değiştir.
+# (Opsiyonel — INTERNAL_TOKEN .env'de boşsa bu satır önemli değil)
+# RequestHeader set X-Internal-Token "BURAYA_INTERNAL_TOKEN_DEGERI"
