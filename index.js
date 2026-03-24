@@ -29,23 +29,36 @@ app.use(cors({
 
 app.use(express.json());
 
-// --- Statik dosyalar: Admin Panel ---
+// --- Statik dosyalar: Admin Panel + Widget ---
 app.use('/admin', express.static(path.join(__dirname, 'public', 'admin')));
+app.use('/widget', express.static(path.join(__dirname, 'public', 'widget')));
 
 // --- Routes ---
 const apiRoutes = require('./routes/api');
+const commentRoutes = require('./routes/comments');
+const reactionRoutes = require('./routes/reactions');
+const subscribeRoutes = require('./routes/subscribe');
 const adminAuthRoutes = require('./routes/adminAuth');
 const adminChannelRoutes = require('./routes/adminChannels');
 const adminSubmissionRoutes = require('./routes/adminSubmissions');
+const adminCommentRoutes = require('./routes/adminComments');
+const adminReactionRoutes = require('./routes/adminReactions');
+const adminSubscriberRoutes = require('./routes/adminSubscribers');
 const { authMiddleware } = require('./middleware/auth');
 
 // Public API
 app.use('/api', apiRoutes);
+app.use('/api/comments', commentRoutes);
+app.use('/api/reactions', reactionRoutes);
+app.use('/api', subscribeRoutes);   // /api/subscribe, /api/unsubscribe
 
 // Admin API – login hariç hepsi JWT korumalı
 app.use('/admin/api/auth', adminAuthRoutes);
 app.use('/admin/api/channels', authMiddleware, adminChannelRoutes);
 app.use('/admin/api/submissions', authMiddleware, adminSubmissionRoutes);
+app.use('/admin/api/comments', authMiddleware, adminCommentRoutes);
+app.use('/admin/api/reactions', authMiddleware, adminReactionRoutes);
+app.use('/admin/api/subscribers', authMiddleware, adminSubscriberRoutes);
 
 // Admin SPA fallback – tüm admin/* route'larını index.html'e yönlendir
 app.get('/admin/*', (req, res) => {
