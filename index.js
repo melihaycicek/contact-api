@@ -1,8 +1,27 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const cors = require('cors');
 const helmet = require('helmet');
 require('dotenv').config();
+
+// Log dizini
+const LOG_DIR = path.join(__dirname, 'logs');
+if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR);
+
+function writeLog(filename, msg) {
+    const line = `[${new Date().toISOString()}] ${msg}\n`;
+    fs.appendFileSync(path.join(LOG_DIR, filename), line);
+    process.stdout.write(line);
+}
+
+process.on('uncaughtException', (err) => {
+    writeLog('crash.log', `UNCAUGHT EXCEPTION: ${err.stack || err}`);
+    process.exit(1);
+});
+process.on('unhandledRejection', (reason) => {
+    writeLog('crash.log', `UNHANDLED REJECTION: ${reason?.stack || reason}`);
+});
 
 const app = express();
 
@@ -92,8 +111,18 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// HTTP request logging
+app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+        writeLog('access.log', `${req.method} ${req.url} ${res.statusCode} ${Date.now() - start}ms - ${req.headers.origin || '-'}`);
+    });
+    next();
+});
+
 // --- Port Dinleme ---
 const PORT = process.env.PORT || 3100;
 app.listen(PORT, () => {
-  console.log(`Backend ${PORT} portunda aktif. Node.js ${process.version}`);
+    writeLog('access.log', `Backend ${PORT} portunda aktif. Node.js ${process.version}`);
+    console.log(`Backend ${PORT} portunda aktif. Node.js ${process.version}`);
 });
