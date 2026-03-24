@@ -5,9 +5,9 @@ CREATE TABLE IF NOT EXISTS reactions (
   id            INT AUTO_INCREMENT PRIMARY KEY,
   article_slug  VARCHAR(255)   NOT NULL,
   channel_id    INT            NOT NULL,
-  reaction_type VARCHAR(20)    NOT NULL DEFAULT 'clap',  -- 'clap', 'like', 'heart'
-  fingerprint   VARCHAR(64)    NOT NULL,                 -- SHA-256(ip + userAgent) — anonim, KVKK uyumlu
-  count         TINYINT        NOT NULL DEFAULT 1,       -- kişi başı max 50, Medium tarzı
+  reaction_type VARCHAR(20)    NOT NULL DEFAULT 'clap',
+  fingerprint   VARCHAR(64)    NOT NULL,
+  count         TINYINT        NOT NULL DEFAULT 1,
   created_at    TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at    TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
